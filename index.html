@@ -1,643 +1,485 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>airtuerk mcold – Newsletter Injection Preview</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f6f8;
-      color: #222;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>airtuerk – Multicheck</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+  body { background:#f4f5f8; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:13px; }
 
-    /* ── Demo chrome ── */
-    .demo-header {
-      background: #fff;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .demo-header-logo {
-      font-size: 18px;
-      font-weight: 800;
-      color: #246bb3;
-      letter-spacing: -0.5px;
-    }
-    .demo-header-label {
-      font-size: 12px;
-      color: #888;
-      background: #f0f4ff;
-      border: 1px solid #d0dff8;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-weight: 500;
-    }
+  /* ── NAVBAR ── */
+  .atk-nav { background:#fff; border-bottom:1px solid #e0e0e0; padding:0 16px; display:flex; align-items:center; height:52px; position:sticky; top:0; z-index:200; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+  .atk-logo { font-size:22px; font-weight:800; color:#246bb3; letter-spacing:-1px; margin-right:28px; font-style:italic; }
+  .atk-logo span { color:#e63946; }
+  .atk-navlinks { display:flex; gap:2px; flex:1; }
+  .atk-navlinks a { display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:5px; color:#444; text-decoration:none; font-size:12.5px; font-weight:500; white-space:nowrap; transition:background .15s; }
+  .atk-navlinks a:hover { background:#f0f4ff; color:#246bb3; }
+  .atk-navlinks a i { font-size:13px; color:#246bb3; }
+  .atk-userinfo { display:flex; flex-direction:column; align-items:flex-end; font-size:11px; color:#555; line-height:1.5; }
+  .atk-userinfo strong { color:#222; font-size:12px; }
+  .atk-userinfo .badge-mco { background:#e8f0fe; color:#246bb3; border-radius:3px; padding:1px 5px; font-weight:600; }
 
-    .demo-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px 20px;
-    }
+  /* ── MAIN AREA ── */
+  .main-wrapper { max-width:1320px; margin:0 auto; padding:18px 16px; }
 
-    .demo-panel {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
-    .demo-panel-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #888;
-      margin: 0 0 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #f0f0f0;
-    }
+  /* ── CARD / PORTLET ── */
+  .kt-portlet { background:#fff; border-radius:6px; border:1px solid #e5e7eb; margin-bottom:16px; }
+  .kt-portlet .card-header { border-bottom:1px solid #f0f0f0; padding:12px 18px; display:flex; align-items:center; }
+  .kt-portlet .card-header h5 { margin:0; font-size:15px; font-weight:600; color:#333; }
+  .kt-portlet .card-header h2 { margin:0; font-size:14px; font-weight:600; color:#333; }
+  .kt-portlet .card-body { padding:16px 18px; }
 
-    .demo-search-mock {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 0;
-    }
-    .demo-search-mock h5 {
-      font-size: 14px;
-      margin: 0 0 10px;
-      color: #246bb3;
-    }
-    .demo-field {
-      height: 36px;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      margin-bottom: 8px;
-    }
-    .demo-field-row { display: flex; gap: 6px; margin-bottom: 8px; }
-    .demo-field-row .demo-field { flex: 1; margin-bottom: 0; }
-    .demo-btn-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .demo-tab {
-      flex: 1;
-      height: 32px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      background: #f0f0f0;
-      font-size: 11px;
-      text-align: center;
-      line-height: 32px;
-      color: #555;
-    }
-    .demo-tab.active {
-      background: #246bb3;
-      color: #fff;
-      border-color: #246bb3;
-    }
-    .demo-search-cta {
-      width: 100%;
-      height: 36px;
-      background: #e63946;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 4px;
-    }
+  /* ── FLIGHT SEARCH ── */
+  .btn-route { font-size:12px; font-weight:500; }
+  .btn-info.btn-route { background:#246bb3; border-color:#246bb3; color:#fff; }
+  .btn-secondary.btn-route { background:#f4f5f8; border-color:#ddd; color:#555; }
+  .select-mock { height:36px; border:1px solid #ddd; border-radius:4px; background:#fff; display:flex; align-items:center; padding:0 10px; color:#999; font-size:12px; flex:1; }
+  .select-mock i { margin-right:6px; color:#246bb3; }
+  .swap-btn { width:34px; height:36px; background:#f4f5f8; border:1px solid #ddd; border-radius:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .touchspin-wrap { display:flex; align-items:center; }
+  .touchspin-wrap button { width:28px; height:32px; background:#246bb3; border:none; color:#fff; font-size:14px; cursor:pointer; border-radius:3px; }
+  .touchspin-wrap input { width:44px; height:32px; text-align:center; border:1px solid #ddd; font-size:13px; }
+  .date-mock { height:36px; border:1px solid #ddd; border-radius:4px; background:#fff; display:flex; align-items:center; padding:0 10px; color:#999; font-size:12px; flex:1; }
+  .date-mock i { margin-right:6px; color:#246bb3; }
+  .store-links { display:flex; gap:8px; }
+  .store-links img { height:28px; width:auto; }
+  label.pax-label { font-size:11.5px; color:#555; margin-bottom:4px; display:block; }
+  .checkbox-row { display:flex; align-items:center; gap:6px; font-size:12px; color:#444; }
+  .checkbox-row input { margin:0; }
 
-    /* ── Code view toggle ── */
-    .demo-code-toggle {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .demo-code-toggle button {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 5px 14px;
-      border-radius: 5px;
-      border: 1.5px solid #ddd;
-      background: transparent;
-      color: #555;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .demo-code-toggle button.active {
-      background: #111;
-      color: #fff;
-      border-color: #111;
-    }
-    .code-view {
-      display: none;
-      background: #1a1a2e;
-      border-radius: 8px;
-      padding: 16px;
-      overflow: auto;
-      max-height: 380px;
-    }
-    .code-view.is-visible { display: block; }
-    .code-view pre {
-      margin: 0;
-      font-size: 11.5px;
-      line-height: 1.6;
-      color: #cdd6f4;
-      white-space: pre;
-      font-family: "Fira Code", "Cascadia Code", "SF Mono", monospace;
-    }
-    .code-view pre .tag  { color: #89b4fa; }
-    .code-view pre .attr { color: #f38ba8; }
-    .code-view pre .val  { color: #a6e3a1; }
-    .code-view pre .cmt  { color: #6c7086; }
+  /* ── TABLES ── */
+  .table th { font-size:11.5px; font-weight:600; color:#555; white-space:nowrap; }
+  .table td { font-size:12px; vertical-align:middle; }
+  .table td a { color:#246bb3; }
+  .dataTables_paginate { text-align:right; padding-top:8px; font-size:12px; }
+  .paginate_button { padding:3px 9px; border:1px solid #ddd; border-radius:3px; margin-left:3px; cursor:pointer; color:#246bb3; }
+  .paginate_button.current { background:#246bb3; color:#fff; border-color:#246bb3; }
+  .paginate_button.disabled { color:#aaa; cursor:default; }
 
-    .demo-note {
-      font-size: 12px;
-      color: #888;
-      margin-top: 14px;
-      line-height: 1.6;
-      background: #f9fafb;
-      border-left: 3px solid #246bb3;
-      padding: 10px 12px;
-      border-radius: 0 6px 6px 0;
-    }
-    .demo-note strong { color: #246bb3; }
-    .demo-note code {
-      font-family: monospace;
-      background: #eef2ff;
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-size: 11px;
-    }
+  /* ══════════════════════════════
+     CAMPAIGN CARDS (redesigned)
+     ══════════════════════════════ */
+  .mcx-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .mcx-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    cursor: pointer;
+    transition: transform .22s ease, box-shadow .22s ease;
+    display: flex;
+    flex-direction: column;
+    outline: none;
+    border: 1px solid #ebebeb;
+  }
+  .mcx-card:hover, .mcx-card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.13);
+  }
+  .mcx-card-media {
+    position: relative;
+    height: 148px;
+    overflow: hidden;
+    background: #f4f4f5;
+  }
+  .mcx-card-media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .35s ease; display: block;
+  }
+  .mcx-card:hover .mcx-card-media img { transform: scale(1.06); }
+  .mcx-card-media--placeholder {
+    background: linear-gradient(135deg,#f0f0f2,#e2e2e6);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mcx-card-media-icon { color:#bbb; width:48px; height:48px; }
+  .mcx-card-media-icon svg { width:100%; height:100%; }
+  .mcx-card-badge {
+    position: absolute; top: 9px; left: 9px;
+    background: rgba(0,0,0,.52); color: #fff;
+    font-size: 9.5px; font-weight: 700; letter-spacing: .4px;
+    text-transform: uppercase; padding: 2px 7px; border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+  .mcx-card-body { padding: 13px 15px 11px; display: flex; flex-direction: column; flex: 1; }
+  .mcx-card-title { font-size: 13.5px; font-weight: 600; color: #111; margin: 0 0 5px; line-height: 1.3; }
+  .mcx-card-desc {
+    font-size: 11.5px; color: #777; line-height: 1.55; margin: 0;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .mcx-card-footer { margin-top: auto; padding-top: 11px; }
+  .mcx-cta-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; letter-spacing: .3px;
+    color: #222; background: transparent;
+    border: 1.5px solid #ccc; border-radius: 5px;
+    padding: 4px 11px; cursor: pointer;
+    transition: background .18s, color .18s, border-color .18s;
+  }
+  .mcx-cta-btn svg { width: 11px; height: 11px; transition: transform .18s; }
+  .mcx-card:hover .mcx-cta-btn, .mcx-card:focus-visible .mcx-cta-btn {
+    background: #111; color: #fff; border-color: #111;
+  }
+  .mcx-card:hover .mcx-cta-btn svg { transform: translateX(2px); }
 
-    .demo-full-width {
-      grid-column: 1 / -1;
-    }
-
-    @media (max-width: 768px) {
-      .demo-layout { grid-template-columns: 1fr; }
-      .demo-full-width { grid-column: 1; }
-    }
-  </style>
+  /* ══ MODAL ══ */
+  .mcx-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.52); z-index: 9999;
+    justify-content: center; align-items: center; padding: 16px;
+    backdrop-filter: blur(3px);
+  }
+  .mcx-overlay.is-open { display: flex; }
+  .mcx-modal {
+    position: relative; background: #fff; border-radius: 12px; overflow: hidden;
+    width: min(820px,92vw); height: min(82vh,680px);
+    box-shadow: 0 20px 60px rgba(0,0,0,.28);
+    display: flex; flex-direction: column;
+  }
+  .mcx-modal-close {
+    position: absolute; top: 11px; right: 11px; z-index: 10;
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    background: rgba(0,0,0,.45); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background .15s; padding: 0;
+  }
+  .mcx-modal-close:hover { background: rgba(0,0,0,.7); }
+  .mcx-modal-close svg { width: 15px; height: 15px; }
+  .mcx-modal-iframe { width: 100%; height: 100%; border: none; flex: 1; }
+</style>
 </head>
 <body>
 
-<header class="demo-header">
-  <div class="demo-header-logo">airtuerk</div>
-  <span class="demo-header-label">mcold · Newsletter Injection Preview</span>
-</header>
-
-<div class="demo-layout">
-
-  <!-- Left: Search mock -->
-  <div class="demo-panel">
-    <p class="demo-panel-title">Linke Spalte – Uçuş Arama (mock)</p>
-    <div class="demo-search-mock">
-      <h5>Uçuş Arama</h5>
-      <div class="demo-btn-row">
-        <div class="demo-tab active">Tek Yön</div>
-        <div class="demo-tab">Gidiş-Dönüş</div>
-        <div class="demo-tab">Çoklu uçuş</div>
-      </div>
-      <div class="demo-field-row">
-        <div class="demo-field"></div>
-        <div class="demo-field"></div>
-      </div>
-      <div class="demo-field"></div>
-      <div class="demo-field" style="height:28px;margin-top:8px"></div>
-      <button class="demo-search-cta">🔍 Uçuş ara</button>
-    </div>
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav class="atk-nav">
+  <div class="atk-logo">air<span>tuerk</span></div>
+  <div class="atk-navlinks">
+    <a href="#"><i class="fas fa-plane"></i> Uçuş Ara</a>
+    <a href="#"><i class="fas fa-search"></i> PNR Ara</a>
+    <a href="#"><i class="fas fa-file-alt"></i> Satış Raporu</a>
+    <a href="#"><i class="fas fa-bed"></i> Hotel</a>
+    <a href="#"><i class="fas fa-car"></i> RentaCar</a>
+    <a href="#"><i class="fas fa-bus"></i> Transfer</a>
+    <a href="#"><i class="fas fa-wrench"></i> Ayarlar</a>
+    <a href="#"><i class="fas fa-home"></i></a>
+    <a href="#"><span>🇹🇷</span></a>
   </div>
+  <div class="atk-userinfo">
+    <strong>Airtuerk+Service+GmbH+ 247944</strong>
+    <div><span class="badge-mco">MCO Bakiyesi 1.000,00</span> &nbsp; Kalan Aramalar 1005</div>
+  </div>
+</nav>
 
-  <!-- Right: Live cards -->
-  <div class="demo-panel">
-    <p class="demo-panel-title">Rechte Spalte – Kampagnen-Cards (live)</p>
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main-wrapper">
+  <div class="row">
 
-    <!-- ════════════════════════════════════════
-         HOME_002 INJECTION STARTS HERE
-         ════════════════════════════════════════ -->
-
-    <!-- ── Single shared modal overlay ── -->
-    <div class="mcx-overlay" id="mcx-newsletter-popup" onclick="mcxNewsLetterClosePopupOnOverlay(event)">
-      <div class="mcx-modal">
-        <button class="mcx-modal-close" onclick="mcxNewsLetterClosePopup()" aria-label="Schließen">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-        <iframe id="mcx-newsletter-popup-iframe"
-                class="mcx-modal-iframe"
-                src=""
-                allow="fullscreen; autoplay; encrypted-media"
-                allowfullscreen>
-        </iframe>
+    <!-- ── LEFT: Flight Search ── -->
+    <div class="col-md-6">
+      <div class="kt-portlet">
+        <div class="card-header">
+          <h5 class="card-title" style="flex:1">Uçuş Arama</h5>
+          <div class="store-links">
+            <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play">
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Trip type -->
+          <div class="btn-group btn-block mb-3" role="group">
+            <button type="button" class="btn btn-info btn-route">Tek Yön</button>
+            <button type="button" class="btn btn-secondary btn-route">Gidiş-Dönüş</button>
+            <button type="button" class="btn btn-secondary btn-route">Çoklu uçuş</button>
+          </div>
+          <!-- Ports -->
+          <div class="d-flex align-items-center gap-2 mb-3" style="gap:6px">
+            <div class="select-mock" style="flex:1"><i class="fas fa-plane-departure"></i> Nereden</div>
+            <div class="swap-btn"><i class="fas fa-sync-alt" style="font-size:11px;color:#888"></i></div>
+            <div class="select-mock" style="flex:1"><i class="fas fa-plane-arrival"></i> Nereye</div>
+          </div>
+          <!-- Date -->
+          <div class="d-flex mb-3" style="gap:6px">
+            <div class="date-mock" style="flex:1"><i class="fas fa-calendar-alt"></i> Gidiş Tarihi</div>
+            <div class="touchspin-wrap">
+              <button>-</button><input value="0"><button>+</button>
+            </div>
+          </div>
+          <!-- Airline filter -->
+          <div class="form-group mb-2">
+            <label style="font-size:11.5px;color:#555;margin-bottom:3px">Havayolu</label>
+            <div class="select-mock" style="height:34px"><i class="fas fa-filter" style="font-size:11px"></i></div>
+          </div>
+          <!-- Checkboxes -->
+          <div class="d-flex mb-3" style="gap:20px">
+            <label class="checkbox-row"><input type="checkbox"> Direkt Uçuşlar</label>
+            <label class="checkbox-row"><input type="checkbox"> Bagaj Dahil Ücretler</label>
+          </div>
+          <!-- Pax -->
+          <div class="row">
+            <div class="col-3">
+              <label class="pax-label"><i class="fas fa-male"></i> Yetişkin</label>
+              <div class="touchspin-wrap"><button>-</button><input value="1"><button>+</button></div>
+            </div>
+            <div class="col-3">
+              <label class="pax-label"><i class="fas fa-child"></i> Çocuk (2-12)</label>
+              <div class="touchspin-wrap"><button>-</button><input value="0"><button>+</button></div>
+            </div>
+            <div class="col-3">
+              <label class="pax-label"><i class="fas fa-baby"></i> Bebek (0-2)</label>
+              <div class="touchspin-wrap"><button>-</button><input value="0"><button>+</button></div>
+            </div>
+            <div class="col-3 d-flex flex-column justify-content-end">
+              <button class="btn btn-danger btn-block" style="height:32px;font-size:12px">
+                <i class="fas fa-search"></i> Uçuş ara
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- ── 4 Campaign Cards ── -->
-    <div class="mcx-cards-grid">
+    <!-- ── RIGHT: Campaign Cards ── -->
+    <div class="col-md-6">
 
-      <!-- Card 1 – Flex14 -->
-      <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925591)" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter')mcxShowNewsDetailPopup(9925591)">
-        <div class="mcx-card-media">
-          <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/flex14detail.png"
-               alt="Flex14" loading="lazy">
-          <span class="mcx-card-badge">Uçuş</span>
-        </div>
-        <div class="mcx-card-body">
-          <h3 class="mcx-card-title">Flex14 ile Kesintisiz İptal Hakkı</h3>
-          <p class="mcx-card-desc">Son 14 güne kadar ücretsiz iptal hakkını yolcularınıza sunmayı unutmayın.</p>
-          <div class="mcx-card-footer">
-            <button class="mcx-cta-btn" tabindex="-1">
-              Detayları Gör
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="8" x2="13" y2="8"/>
-                <polyline points="9 4 13 8 9 12"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 2 – Premium RentaCar -->
-      <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925593)" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter')mcxShowNewsDetailPopup(9925593)">
-        <div class="mcx-card-media">
-          <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/premium.png"
-               alt="Premium" loading="lazy">
-          <span class="mcx-card-badge">RentaCar</span>
-        </div>
-        <div class="mcx-card-body">
-          <h3 class="mcx-card-title">Araç Kiralamada Premium Keyfi</h3>
-          <p class="mcx-card-desc">Günlük sadece 5 € ile kaza, cam, far, lastik ve ayna güvence altında.</p>
-          <div class="mcx-card-footer">
-            <button class="mcx-cta-btn" tabindex="-1">
-              Detayları Gör
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="8" x2="13" y2="8"/>
-                <polyline points="9 4 13 8 9 12"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3 – HGS -->
-      <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925594)" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter')mcxShowNewsDetailPopup(9925594)">
-        <div class="mcx-card-media">
-          <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/hgs.png"
-               alt="HGS" loading="lazy">
-          <span class="mcx-card-badge">RentaCar</span>
-        </div>
-        <div class="mcx-card-body">
-          <h3 class="mcx-card-title">HGS Konusunda İçim Rahat</h3>
-          <p class="mcx-card-desc">Otoyol ve köprü geçiş ücretlerini önceden güvence altına alın. HGS takibi yok.</p>
-          <div class="mcx-card-footer">
-            <button class="mcx-cta-btn" tabindex="-1">
-              Detayları Gör
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="8" x2="13" y2="8"/>
-                <polyline points="9 4 13 8 9 12"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 4 – İptal Paketi -->
-      <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925595)" role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter')mcxShowNewsDetailPopup(9925595)">
-        <div class="mcx-card-media mcx-card-media--placeholder">
-          <div class="mcx-card-media-icon">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <rect x="8" y="14" width="32" height="26" rx="3"/>
-              <path d="M16 14v-4a8 8 0 0 1 16 0v4"/>
-              <line x1="24" y1="24" x2="24" y2="32"/>
-              <circle cx="24" cy="22" r="1" fill="currentColor"/>
+      <!-- Modal overlay -->
+      <div class="mcx-overlay" id="mcx-newsletter-popup" onclick="mcxNewsLetterClosePopupOnOverlay(event)">
+        <div class="mcx-modal">
+          <button class="mcx-modal-close" onclick="mcxNewsLetterClosePopup()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
-          </div>
-          <span class="mcx-card-badge">RentaCar</span>
-        </div>
-        <div class="mcx-card-body">
-          <h3 class="mcx-card-title">Araç Kiralama İptal Paketi</h3>
-          <p class="mcx-card-desc">Rezervasyon başına 15 € ile misafirlerinize esnek planlama imkânı sunun.</p>
-          <div class="mcx-card-footer">
-            <button class="mcx-cta-btn" tabindex="-1">
-              Detayları Gör
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="8" x2="13" y2="8"/>
-                <polyline points="9 4 13 8 9 12"/>
-              </svg>
-            </button>
-          </div>
+          </button>
+          <iframe id="mcx-newsletter-popup-iframe" class="mcx-modal-iframe" src="" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
       </div>
 
-    </div><!-- /.mcx-cards-grid -->
+      <div class="mcx-cards-grid">
 
-    <!-- ════════════════════════════════════════
-         HOME_002 INJECTION ENDS HERE
-         ════════════════════════════════════════ -->
+        <!-- Card 1 -->
+        <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925591)" tabindex="0">
+          <div class="mcx-card-media">
+            <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/flex14detail.png" alt="Flex14" loading="lazy">
+            <span class="mcx-card-badge">Uçuş</span>
+          </div>
+          <div class="mcx-card-body">
+            <h3 class="mcx-card-title">Flex14 ile Kesintisiz İptal Hakkı</h3>
+            <p class="mcx-card-desc">Son 14 güne kadar ücretsiz iptal hakkını yolcularınıza sunmayı unutmayın.</p>
+            <div class="mcx-card-footer">
+              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
 
-  </div><!-- /.demo-panel right -->
+        <!-- Card 2 -->
+        <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925593)" tabindex="0">
+          <div class="mcx-card-media">
+            <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/premium.png" alt="Premium" loading="lazy">
+            <span class="mcx-card-badge">RentaCar</span>
+          </div>
+          <div class="mcx-card-body">
+            <h3 class="mcx-card-title">Araç Kiralamada Premium Keyfi</h3>
+            <p class="mcx-card-desc">Günlük sadece 5 € ile kaza, cam, far, lastik ve ayna güvence altında.</p>
+            <div class="mcx-card-footer">
+              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
 
+        <!-- Card 3 -->
+        <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925594)" tabindex="0">
+          <div class="mcx-card-media">
+            <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/hgs.png" alt="HGS" loading="lazy">
+            <span class="mcx-card-badge">RentaCar</span>
+          </div>
+          <div class="mcx-card-body">
+            <h3 class="mcx-card-title">HGS Konusunda İçim Rahat</h3>
+            <p class="mcx-card-desc">Otoyol ve köprü geçiş ücretlerini önceden güvence altına alın. HGS takibi yok.</p>
+            <div class="mcx-card-footer">
+              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
 
-  <!-- Code view panel – full width -->
-  <div class="demo-panel demo-full-width">
-    <p class="demo-panel-title">Quellcode-Ansicht</p>
-    <div class="demo-code-toggle">
-      <button class="active" onclick="showCode('cards', this)">home_002.html (Cards)</button>
-      <button onclick="showCode('detail', this)">news-detail-injection.html (Modal-Innen)</button>
+        <!-- Card 4 -->
+        <div class="mcx-card" onclick="mcxShowNewsDetailPopup(9925595)" tabindex="0">
+          <div class="mcx-card-media mcx-card-media--placeholder">
+            <div class="mcx-card-media-icon">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="14" width="32" height="26" rx="3"/><path d="M16 14v-4a8 8 0 0 1 16 0v4"/>
+                <line x1="24" y1="24" x2="24" y2="32"/><circle cx="24" cy="22" r="1" fill="currentColor"/>
+              </svg>
+            </div>
+            <span class="mcx-card-badge">RentaCar</span>
+          </div>
+          <div class="mcx-card-body">
+            <h3 class="mcx-card-title">Araç Kiralama İptal Paketi</h3>
+            <p class="mcx-card-desc">Rezervasyon başına 15 € ile misafirlerinize esnek planlama imkânı sunun.</p>
+            <div class="mcx-card-footer">
+              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.mcx-cards-grid -->
+    </div><!-- /col right -->
+  </div><!-- /row top -->
+
+  <!-- ── PNR TABLES ROW ── -->
+  <div class="row no-gutters">
+    <!-- Opsiyonu Yaklaşan -->
+    <div class="card kt-portlet col mr-1">
+      <div class="card-header"><h2>Opsiyonu Yaklaşan PNRlar</h2></div>
+      <div class="card-body p-2">
+        <div class="table-responsive">
+          <table class="table table-striped table-sm mb-1">
+            <thead>
+              <tr>
+                <th><i class="fas fa-calendar-alt mr-1"></i>Opsiyon Tarihi</th>
+                <th><i class="fas fa-user mr-1"></i>Yolcu</th>
+                <th><i class="fas fa-list mr-1"></i>Havayolu PNR</th>
+                <th><i class="fas fa-list mr-1"></i>Airtuerk PNR</th>
+                <th><i class="fas fa-list mr-1"></i>Havayolu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5" class="text-center text-muted py-3">Nothing found - sorry</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dataTables_paginate">
+          <span class="paginate_button disabled">Önceki</span>
+          <span class="paginate_button disabled">Sonraki</span>
+        </div>
+      </div>
     </div>
-
-    <div id="code-cards" class="code-view is-visible">
-      <pre id="code-cards-pre"></pre>
-    </div>
-    <div id="code-detail" class="code-view">
-      <pre id="code-detail-pre"></pre>
-    </div>
-
-    <div class="demo-note">
-      <strong>Integration:</strong>
-      Die Datei <code>home_002.html</code> wird als Response-Content von
-      <code>requestAPI.php</code> für <code>part: "home_002"</code> ausgeliefert
-      und in <code>#content_96</code> injiziert.
-      <br><br>
-      <strong>Modal-Innen-Seite:</strong>
-      Die Datei <code>news-detail-injection.html</code> enthält einen
-      <code>&lt;style&gt;</code>-Block, der in die SX-Page
-      <code>news-detail</code> eingebunden wird (z.B. als extra
-      <code>&lt;style sx-id="..."&gt;</code>-Block). Er überschreibt die
-      bestehenden news-detail-Styles so, dass das Video/Bild oben full-width
-      erscheint und der Text darunter folgt.
+    <!-- Uçuşu Yaklaşan -->
+    <div class="card kt-portlet col ml-1">
+      <div class="card-header"><h2>Uçuşu Yaklaşan PNRlar</h2></div>
+      <div class="card-body p-2">
+        <div class="table-responsive">
+          <table class="table table-striped table-sm mb-1">
+            <thead>
+              <tr>
+                <th><i class="fas fa-calendar-alt mr-1"></i>Uçuş Tarihi</th>
+                <th><i class="fas fa-user mr-1"></i>Yolcu</th>
+                <th><i class="fas fa-list mr-1"></i>Havayolu PNR</th>
+                <th><i class="fas fa-list mr-1"></i>Airtuerk PNR</th>
+                <th><i class="fas fa-list mr-1"></i>Havayolu</th>
+                <th><i class="fas fa-list mr-1"></i>Check-in</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>02.04.2026 14:35</td><td>HALIL OZCAN</td><td><a href="#">3UA5H5</a></td><td><a href="#">4DJF91</a></td><td>VF</td><td>Uçuşa 10 Gün 0 saat kaldı.</td></tr>
+              <tr><td>02.04.2026 14:35</td><td>ENGIN OZCAN</td><td><a href="#">3UA5YL</a></td><td><a href="#">4DJFB3</a></td><td>VF</td><td>Uçuşa 10 Gün 0 saat kaldı.</td></tr>
+              <tr><td>06.04.2026 19:30</td><td>ENGIN OZCAN</td><td><a href="#">1T24CP</a></td><td><a href="#">4DY2U5</a></td><td>PC</td><td>Uçuşa 14 Gün 5 saat kaldı.</td></tr>
+              <tr><td>06.04.2026 19:30</td><td>AYSEL OZCAN</td><td><a href="#">1T246B</a></td><td><a href="#">4DY2YZ</a></td><td>PC</td><td>Uçuşa 14 Gün 5 saat kaldı.</td></tr>
+              <tr><td>11.04.2026 13:55</td><td>AIR CON</td><td><a href="#">A3Y4Z5</a></td><td><a href="#">48T8J7</a></td><td>XQ</td><td>Uçuşa 19 Gün 0 saat kaldı.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dataTables_paginate">
+          <span class="paginate_button disabled">Önceki</span>
+          <span class="paginate_button current">1</span>
+          <span class="paginate_button disabled">Sonraki</span>
+        </div>
+      </div>
     </div>
   </div>
 
-</div><!-- /.demo-layout -->
+  <!-- ── SALES TABLES ROW ── -->
+  <div class="row no-gutters mt-0">
+    <!-- Son Satışlar -->
+    <div class="card kt-portlet col mr-1">
+      <div class="card-header"><h2>Son Yapılan Satışlar</h2></div>
+      <div class="card-body p-2">
+        <div class="table-responsive">
+          <table class="table table-striped table-sm mb-1">
+            <thead>
+              <tr>
+                <th>Uçuş Tarihi</th><th>Yolcu</th><th>Havayolu PNR</th><th>Airtuerk PNR</th><th>Havayolu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>14.05.2026 19:40</td><td>AIR CON</td><td><a href="#">HD5837</a></td><td><a href="#">4DZHUB</a></td><td>XQ</td></tr>
+              <tr><td>02.04.2026 14:35</td><td>ENGIN OZCAN</td><td><a href="#">3UA5YL</a></td><td><a href="#">4DJFB3</a></td><td>VF</td></tr>
+              <tr><td>02.04.2026 14:35</td><td>HALIL OZCAN</td><td><a href="#">3UA5H5</a></td><td><a href="#">4DJF91</a></td><td>VF</td></tr>
+              <tr><td>06.04.2026 19:30</td><td>ENGIN OZCAN</td><td><a href="#">1T24CP</a></td><td><a href="#">4DY2U5</a></td><td>PC</td></tr>
+              <tr><td>06.04.2026 19:30</td><td>AYSEL OZCAN</td><td><a href="#">1T246B</a></td><td><a href="#">4DY2YZ</a></td><td>PC</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dataTables_paginate">
+          <span class="paginate_button disabled">Önceki</span>
+          <span class="paginate_button current">1</span>
+          <span class="paginate_button">2</span>
+          <span class="paginate_button">Sonraki</span>
+        </div>
+      </div>
+    </div>
+    <!-- Son Rezervasyonlar -->
+    <div class="card kt-portlet col ml-1">
+      <div class="card-header"><h2>Son Oluşan Rezervasyonlar</h2></div>
+      <div class="card-body p-2">
+        <div class="table-responsive">
+          <table class="table table-striped table-sm mb-1">
+            <thead>
+              <tr>
+                <th>Opsiyon Tarihi</th><th>Yolcu</th><th>Havayolu PNR</th><th>Airtuerk PNR</th><th>Havayolu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5" class="text-center text-muted py-3">Nothing found - sorry</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dataTables_paginate">
+          <span class="paginate_button disabled">Önceki</span>
+          <span class="paginate_button disabled">Sonraki</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-
-<!-- ══════════════════════════════════════════
-     Styles for the injected cards + modal
-     (same as home_002.html <style> block)
-     ══════════════════════════════════════════ -->
-<style>
-/* ---------- Grid ---------- */
-.mcx-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-/* ---------- Card ---------- */
-.mcx-card {
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-  cursor: pointer;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-  display: flex;
-  flex-direction: column;
-  outline: none;
-}
-.mcx-card:hover,
-.mcx-card:focus-visible {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
-}
-
-/* ---------- Card Media ---------- */
-.mcx-card-media {
-  position: relative;
-  height: 150px;
-  overflow: hidden;
-  background: #f4f4f5;
-}
-.mcx-card-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
-  display: block;
-}
-.mcx-card:hover .mcx-card-media img {
-  transform: scale(1.06);
-}
-.mcx-card-media--placeholder {
-  background: linear-gradient(135deg, #f0f0f2 0%, #e2e2e6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.mcx-card-media-icon {
-  color: #aaa;
-  width: 52px;
-  height: 52px;
-}
-.mcx-card-media-icon svg { width: 100%; height: 100%; }
-
-/* ---------- Badge ---------- */
-.mcx-card-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0,0,0,0.55);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 4px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-/* ---------- Card Body ---------- */
-.mcx-card-body {
-  padding: 14px 16px 12px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.mcx-card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111;
-  margin: 0 0 6px;
-  line-height: 1.35;
-}
-.mcx-card-desc {
-  font-size: 12px;
-  color: #666;
-  line-height: 1.55;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ---------- CTA Button ---------- */
-.mcx-card-footer { margin-top: auto; padding-top: 12px; }
-.mcx-cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  color: #222;
-  background: transparent;
-  border: 1.5px solid #ccc;
-  border-radius: 5px;
-  padding: 5px 11px;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-.mcx-cta-btn svg { width: 12px; height: 12px; transition: transform 0.2s ease; }
-.mcx-card:hover .mcx-cta-btn,
-.mcx-card:focus-visible .mcx-cta-btn {
-  background: #111;
-  color: #fff;
-  border-color: #111;
-}
-.mcx-card:hover .mcx-cta-btn svg { transform: translateX(2px); }
-
-/* ========== MODAL ========== */
-.mcx-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.52);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-.mcx-overlay.is-open { display: flex; }
-
-.mcx-modal {
-  position: relative;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  width: min(820px, 92vw);
-  height: min(82vh, 680px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.28);
-  display: flex;
-  flex-direction: column;
-}
-.mcx-modal-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(0,0,0,0.45);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.18s ease;
-  padding: 0;
-}
-.mcx-modal-close:hover { background: rgba(0,0,0,0.7); }
-.mcx-modal-close svg { width: 16px; height: 16px; }
-.mcx-modal-iframe { width: 100%; height: 100%; border: none; flex: 1; }
-
-@media (max-width: 640px) {
-  .mcx-cards-grid { grid-template-columns: 1fr; }
-  .mcx-modal { width: 96vw; height: 88vh; }
-}
-</style>
+  <hr>
+  <footer class="text-center py-3" style="font-size:12px;color:#999">
+    Copyright © 2017 - 2024 Airtuerk &nbsp;·&nbsp; 2026-03-23 13:52:01
+  </footer>
+</div>
 
 <script>
-/* ── Modal functions ── */
-(function () {
-  'use strict';
-  window.mcxShowNewsDetailPopup = function (newsId) {
-    var overlay = document.getElementById('mcx-newsletter-popup');
-    var iframe  = document.getElementById('mcx-newsletter-popup-iframe');
-    if (!overlay || !iframe) return;
-    iframe.src = 'https://atk.airtuerk.net/client/webs/multicheck/#!news-detail/' + newsId;
-    overlay.classList.add('is-open');
-    overlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+(function(){
+  window.mcxShowNewsDetailPopup = function(id){
+    var o = document.getElementById('mcx-newsletter-popup');
+    var f = document.getElementById('mcx-newsletter-popup-iframe');
+    if(!o||!f) return;
+    f.src = 'https://atk.airtuerk.net/client/webs/multicheck/#!news-detail/'+id;
+    o.classList.add('is-open'); o.style.display='flex';
+    document.body.style.overflow='hidden';
   };
-  window.mcxNewsLetterClosePopup = function () {
-    var overlay = document.getElementById('mcx-newsletter-popup');
-    var iframe  = document.getElementById('mcx-newsletter-popup-iframe');
-    if (overlay) { overlay.classList.remove('is-open'); overlay.style.display = 'none'; }
-    if (iframe) { iframe.src = ''; }
-    document.body.style.overflow = '';
+  window.mcxNewsLetterClosePopup = function(){
+    var o=document.getElementById('mcx-newsletter-popup');
+    var f=document.getElementById('mcx-newsletter-popup-iframe');
+    if(o){o.classList.remove('is-open');o.style.display='none';}
+    if(f){f.src='';}
+    document.body.style.overflow='';
   };
-  window.mcxNewsLetterClosePopupOnOverlay = function (event) {
-    if (event.target === document.getElementById('mcx-newsletter-popup')) {
-      window.mcxNewsLetterClosePopup();
-    }
+  window.mcxNewsLetterClosePopupOnOverlay = function(e){
+    if(e.target===document.getElementById('mcx-newsletter-popup')) mcxNewsLetterClosePopup();
   };
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { window.mcxNewsLetterClosePopup(); }
-  });
-}());
-
-/* ── Code preview loader ── */
-function showCode(which, btn) {
-  document.querySelectorAll('.code-view').forEach(function(el) { el.classList.remove('is-visible'); });
-  document.querySelectorAll('.demo-code-toggle button').forEach(function(b) { b.classList.remove('active'); });
-  document.getElementById('code-' + which).classList.add('is-visible');
-  btn.classList.add('active');
-}
-
-/* Fetch and display source files */
-(function loadCodePreviews() {
-  var files = {
-    'cards':  'home_002.html',
-    'detail': 'news-detail-injection.html'
-  };
-  Object.entries(files).forEach(function([key, file]) {
-    fetch(file)
-      .then(function(r) { return r.text(); })
-      .then(function(text) {
-        var pre = document.getElementById('code-' + key + '-pre');
-        if (pre) pre.textContent = text;
-      })
-      .catch(function() {
-        var pre = document.getElementById('code-' + key + '-pre');
-        if (pre) pre.textContent = '(Datei konnte nicht geladen werden – bitte lokal öffnen)';
-      });
-  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')mcxNewsLetterClosePopup();});
 }());
 </script>
 </body>
