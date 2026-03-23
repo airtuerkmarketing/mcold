@@ -70,13 +70,14 @@
     background: #fff;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
     cursor: pointer;
     transition: transform .22s ease, box-shadow .22s ease;
     display: flex;
     flex-direction: column;
     outline: none;
     border: 1px solid #ebebeb;
+    position: relative;
   }
   .mcx-card:hover, .mcx-card:focus-visible {
     transform: translateY(-3px);
@@ -112,45 +113,67 @@
     font-size: 11.5px; color: #777; line-height: 1.55; margin: 0;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .mcx-card-footer { margin-top: auto; padding-top: 11px; }
   .mcx-cta-btn {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 11px; font-weight: 600; letter-spacing: .3px;
-    color: #222; background: transparent;
-    border: 1.5px solid #ccc; border-radius: 5px;
-    padding: 4px 11px; cursor: pointer;
-    transition: background .18s, color .18s, border-color .18s;
+    position: absolute; bottom: 10px; right: 12px;
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; color: #333;
+    background: none; border: none; padding: 0; cursor: pointer;
+    opacity: 0; transform: translateX(4px);
+    transition: opacity .2s, transform .2s, color .2s;
   }
   .mcx-cta-btn svg { width: 11px; height: 11px; transition: transform .18s; }
   .mcx-card:hover .mcx-cta-btn, .mcx-card:focus-visible .mcx-cta-btn {
-    background: #111; color: #fff; border-color: #111;
+    opacity: 1; transform: translateX(0);
   }
   .mcx-card:hover .mcx-cta-btn svg { transform: translateX(2px); }
 
   /* ══ MODAL ══ */
   .mcx-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.52); z-index: 9999;
-    justify-content: center; align-items: center; padding: 16px;
-    backdrop-filter: blur(3px);
+    background: rgba(0,0,0,.55); z-index: 9999;
+    justify-content: center; align-items: center; padding: 20px;
+    backdrop-filter: blur(4px);
   }
   .mcx-overlay.is-open { display: flex; }
   .mcx-modal {
-    position: relative; background: #fff; border-radius: 12px; overflow: hidden;
-    width: min(820px,92vw); height: min(82vh,680px);
-    box-shadow: 0 20px 60px rgba(0,0,0,.28);
+    position: relative; background: #fff; border-radius: 14px; overflow: hidden;
+    width: min(740px,92vw); max-height: min(86vh,660px);
+    box-shadow: 0 24px 64px rgba(0,0,0,.22);
     display: flex; flex-direction: column;
   }
   .mcx-modal-close {
-    position: absolute; top: 11px; right: 11px; z-index: 10;
+    position: absolute; top: 12px; right: 12px; z-index: 10;
     width: 32px; height: 32px; border-radius: 50%; border: none;
-    background: rgba(0,0,0,.45); color: #fff;
+    background: rgba(0,0,0,.42); color: #fff;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: background .15s; padding: 0;
   }
-  .mcx-modal-close:hover { background: rgba(0,0,0,.7); }
-  .mcx-modal-close svg { width: 15px; height: 15px; }
-  .mcx-modal-iframe { width: 100%; height: 100%; border: none; flex: 1; }
+  .mcx-modal-close:hover { background: rgba(0,0,0,.72); }
+  .mcx-modal-close svg { width: 14px; height: 14px; }
+  /* media block */
+  .mcx-modal-media {
+    width: 100%; flex-shrink: 0;
+    background: #111; overflow: hidden;
+    max-height: 320px; display: flex; align-items: center; justify-content: center;
+  }
+  .mcx-modal-media img {
+    width: 100%; max-height: 320px; object-fit: cover; display: block;
+  }
+  .mcx-modal-media video {
+    width: 100%; max-height: 320px; display: block; background: #000;
+  }
+  /* text block */
+  .mcx-modal-body {
+    padding: 22px 26px 26px; overflow-y: auto; flex: 1;
+  }
+  .mcx-modal-category {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase; color: #246bb3; margin-bottom: 8px;
+  }
+  .mcx-modal-title {
+    font-size: 18px; font-weight: 700; color: #111; margin: 0 0 12px; line-height: 1.3;
+  }
+  .mcx-modal-desc { font-size: 13px; color: #555; line-height: 1.7; margin: 0; }
 </style>
 </head>
 <body>
@@ -254,7 +277,12 @@
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
-          <iframe id="mcx-newsletter-popup-iframe" class="mcx-modal-iframe" src="" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
+          <div class="mcx-modal-media" id="mcx-modal-media"></div>
+          <div class="mcx-modal-body">
+            <div class="mcx-modal-category" id="mcx-modal-category"></div>
+            <h2 class="mcx-modal-title" id="mcx-modal-title"></h2>
+            <p class="mcx-modal-desc" id="mcx-modal-desc"></p>
+          </div>
         </div>
       </div>
 
@@ -269,12 +297,10 @@
           <div class="mcx-card-body">
             <h3 class="mcx-card-title">Flex14 ile Kesintisiz İptal Hakkı</h3>
             <p class="mcx-card-desc">Son 14 güne kadar ücretsiz iptal hakkını yolcularınıza sunmayı unutmayın.</p>
-            <div class="mcx-card-footer">
-              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-              </button>
-            </div>
           </div>
+          <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+          </button>
         </div>
 
         <!-- Card 2 -->
@@ -286,12 +312,10 @@
           <div class="mcx-card-body">
             <h3 class="mcx-card-title">Araç Kiralamada Premium Keyfi</h3>
             <p class="mcx-card-desc">Günlük sadece 5 € ile kaza, cam, far, lastik ve ayna güvence altında.</p>
-            <div class="mcx-card-footer">
-              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-              </button>
-            </div>
           </div>
+          <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+          </button>
         </div>
 
         <!-- Card 3 -->
@@ -303,12 +327,10 @@
           <div class="mcx-card-body">
             <h3 class="mcx-card-title">HGS Konusunda İçim Rahat</h3>
             <p class="mcx-card-desc">Otoyol ve köprü geçiş ücretlerini önceden güvence altına alın. HGS takibi yok.</p>
-            <div class="mcx-card-footer">
-              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-              </button>
-            </div>
           </div>
+          <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+          </button>
         </div>
 
         <!-- Card 4 -->
@@ -325,12 +347,10 @@
           <div class="mcx-card-body">
             <h3 class="mcx-card-title">Araç Kiralama İptal Paketi</h3>
             <p class="mcx-card-desc">Rezervasyon başına 15 € ile misafirlerinize esnek planlama imkânı sunun.</p>
-            <div class="mcx-card-footer">
-              <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
-              </button>
-            </div>
           </div>
+          <button class="mcx-cta-btn" tabindex="-1">Detayları Gör
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="8" x2="13" y2="8"/><polyline points="9 4 13 8 9 12"/></svg>
+          </button>
         </div>
 
       </div><!-- /.mcx-cards-grid -->
@@ -461,19 +481,68 @@
 
 <script>
 (function(){
+  var campaigns = {
+    9925591: {
+      category: 'Uçuş',
+      title: 'Flex14 ile Kesintisiz İptal Hakkı',
+      desc: 'Flex14 tarifeleri sayesinde yolcularınız uçuştan 14 güne kadar ücretsiz olarak biletlerini iptal edebilir. Değişen seyahat planlarında büyük esneklik sunan bu ürünü rezervasyon sürecinizde önererek müşteri memnuniyetinizi artırın.',
+      img: 'https://atk.airtuerk.net/client/webs/undefined/images/news/flex14detail.png',
+      video: null
+    },
+    9925593: {
+      category: 'RentaCar',
+      title: 'Araç Kiralamada Premium Keyfi',
+      desc: 'Günlük yalnızca 5 € ek ücretle kaza, cam, far, lastik ve ayna hasarlarını kapsayan Premium güvence paketini misafirlerinize sunun. Ek kesinti yok, uzun prosedür yok — tam koruma, tam huzur.',
+      img: 'https://atk.airtuerk.net/client/webs/undefined/images/news/premium.png',
+      video: null
+    },
+    9925594: {
+      category: 'RentaCar',
+      title: 'HGS Konusunda İçim Rahat',
+      desc: 'Misafirleriniz kiralık araçla otoyol ve köprü geçişlerini sorunsuz yapabilsin. HGS paketi ile geçiş ücretleri önceden güvence altına alınır; araç tesliminde sürpriz fatura çıkmaz, takip stresi yaşanmaz.',
+      img: 'https://atk.airtuerk.net/client/webs/undefined/images/news/hgs.png',
+      video: null
+    },
+    9925595: {
+      category: 'RentaCar',
+      title: 'Araç Kiralama İptal Paketi',
+      desc: 'Rezervasyon başına sadece 15 € ile misafirlerinize esnek planlama imkânı sunun. Herhangi bir nedenle iptal gerektiğinde ödedikleri kiralama bedeli iade edilir. Seyahat planları değişken olan müşteriler için ideal bir ek hizmet.',
+      img: null,
+      video: null
+    }
+  };
+
   window.mcxShowNewsDetailPopup = function(id){
     var o = document.getElementById('mcx-newsletter-popup');
-    var f = document.getElementById('mcx-newsletter-popup-iframe');
-    if(!o||!f) return;
-    f.src = 'https://atk.airtuerk.net/client/webs/multicheck/#!news-detail/'+id;
+    var mediaEl = document.getElementById('mcx-modal-media');
+    var catEl   = document.getElementById('mcx-modal-category');
+    var titleEl = document.getElementById('mcx-modal-title');
+    var descEl  = document.getElementById('mcx-modal-desc');
+    if(!o) return;
+    var c = campaigns[id] || {};
+    // populate media
+    mediaEl.innerHTML = '';
+    if(c.video){
+      mediaEl.innerHTML = '<video autoplay muted loop playsinline src="'+c.video+'"></video>';
+      mediaEl.style.display='flex';
+    } else if(c.img){
+      mediaEl.innerHTML = '<img src="'+c.img+'" alt="">';
+      mediaEl.style.display='flex';
+    } else {
+      mediaEl.style.display='none';
+    }
+    catEl.textContent   = c.category || '';
+    titleEl.textContent = c.title    || '';
+    descEl.textContent  = c.desc     || '';
     o.classList.add('is-open'); o.style.display='flex';
     document.body.style.overflow='hidden';
   };
+
   window.mcxNewsLetterClosePopup = function(){
     var o=document.getElementById('mcx-newsletter-popup');
-    var f=document.getElementById('mcx-newsletter-popup-iframe');
+    var mediaEl=document.getElementById('mcx-modal-media');
     if(o){o.classList.remove('is-open');o.style.display='none';}
-    if(f){f.src='';}
+    if(mediaEl){mediaEl.innerHTML='';}
     document.body.style.overflow='';
   };
   window.mcxNewsLetterClosePopupOnOverlay = function(e){
