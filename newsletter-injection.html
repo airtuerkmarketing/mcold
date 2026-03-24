@@ -1,0 +1,490 @@
+<!-- ============================================================
+     AIRTUERK MULTICHECK — Newsletter Block Injection (home_002)
+     Ziel: content_96 — 4 CTA-Karten + Modal-Redesign
+     ============================================================ -->
+
+<!-- ── STYLES ─────────────────────────────────────────────── -->
+<style ref="home_002">
+
+/* ── Grid ───────────────────────────────────────────────── */
+.mcx-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* ── Card ───────────────────────────────────────────────── */
+.mcx-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow .25s, transform .25s;
+}
+.mcx-card:hover {
+  box-shadow: 0 6px 22px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+/* ── Image / Hero area ──────────────────────────────────── */
+.mcx-card-hero {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8edf7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mcx-card-hero img {
+  max-width: 55%;
+  max-height: 120px;
+  object-fit: contain;
+  transition: transform .35s;
+}
+.mcx-card:hover .mcx-card-hero img {
+  transform: scale(1.08);
+}
+/* Gradient overlay so text floats nicely */
+.mcx-card-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.55));
+  pointer-events: none;
+}
+/* Fallback when no image */
+.mcx-card-hero.no-image {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+}
+.mcx-card-hero.no-image::before {
+  content: '✉';
+  font-size: 48px;
+  opacity: .15;
+  color: #fff;
+}
+
+/* ── Badge (tag pill on top-right of hero) ──────────────── */
+.mcx-card-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Body ───────────────────────────────────────────────── */
+.mcx-card-body {
+  padding: 14px 16px 46px; /* bottom: space for CTA button */
+  flex: 1;
+}
+.mcx-card-body h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+.mcx-card-body p {
+  font-size: 12.5px;
+  color: #555;
+  line-height: 1.55;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ── CTA button ─────────────────────────────────────────── */
+.mcx-card-cta {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid #111;
+  background: transparent;
+  color: #111;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  cursor: pointer;
+  transition: background .22s, color .22s, box-shadow .22s;
+}
+.mcx-card-cta svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  transition: transform .22s;
+}
+.mcx-card:hover .mcx-card-cta {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+}
+.mcx-card:hover .mcx-card-cta svg {
+  transform: translateX(2px);
+}
+.mcx-card:hover .mcx-card-cta svg path {
+  fill: #fff;
+}
+
+/* ── MODAL OVERLAY ──────────────────────────────────────── */
+.mcx-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: mcxFadeIn .2s ease;
+}
+.mcx-overlay.mcx-open {
+  display: flex;
+}
+@keyframes mcxFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── MODAL BOX ──────────────────────────────────────────── */
+.mcx-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  width: min(720px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: mcxSlideUp .25s ease;
+  display: flex;
+  flex-direction: column;
+}
+@keyframes mcxSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Modal — media header (full-width video or image) ───── */
+.mcx-modal-media {
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  background: #111;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.mcx-modal-media iframe,
+.mcx-modal-media video,
+.mcx-modal-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  display: block;
+}
+
+/* ── Modal — text body ───────────────────────────────────── */
+.mcx-modal-body {
+  padding: 24px 28px 28px;
+}
+.mcx-modal-body h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 12px;
+  line-height: 1.25;
+}
+.mcx-modal-body .mcx-modal-text {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+.mcx-modal-body .mcx-modal-date {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #999;
+}
+
+/* ── Modal — close button ───────────────────────────────── */
+.mcx-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s;
+  z-index: 10;
+  padding: 0;
+}
+.mcx-modal-close:hover {
+  background: rgba(0,0,0,.75);
+}
+.mcx-modal-close svg {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+.mcx-modal::-webkit-scrollbar { width: 5px; }
+.mcx-modal::-webkit-scrollbar-track { background: transparent; }
+.mcx-modal::-webkit-scrollbar-thumb { background: #ccc; border-radius: 8px; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .mcx-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .mcx-modal {
+    width: 95vw;
+    max-height: 92vh;
+  }
+  .mcx-modal-body {
+    padding: 18px 18px 22px;
+  }
+}
+
+</style>
+
+<!-- ── SINGLE MODAL (shared by all 4 cards) ──────────────── -->
+<div class="mcx-overlay" id="mcxOverlay" onclick="mcxCloseOnOverlay(event)">
+  <div class="mcx-modal" id="mcxModal">
+    <button class="mcx-modal-close" onclick="mcxCloseModal()" aria-label="Schließen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <!-- media slot: filled dynamically by mcxOpenModal() -->
+    <div class="mcx-modal-media" id="mcxModalMedia"></div>
+    <div class="mcx-modal-body">
+      <h2 id="mcxModalTitle"></h2>
+      <div class="mcx-modal-text" id="mcxModalText"></div>
+      <div class="mcx-modal-date" id="mcxModalDate"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 4 NEWSLETTER CARDS ─────────────────────────────────── -->
+<div class="mcx-grid">
+
+  <!-- Card 1: Flex14 -->
+  <div class="mcx-card" onclick="mcxOpenModal('flex14')">
+    <div class="mcx-card-hero">
+      <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/flex14detail.png" alt="Flex14">
+      <span class="mcx-card-badge">Neuigkeit</span>
+    </div>
+    <div class="mcx-card-body">
+      <h3>Flex14 ile Kesintisiz İptal Hakkı</h3>
+      <p>Flex14 ile son 14 güne kadar ücretsiz iptal hakkını yolcularınıza sunmayı unutmayın.</p>
+    </div>
+    <button class="mcx-card-cta">
+      Mehr erfahren
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <!-- Card 2: Premium -->
+  <div class="mcx-card" onclick="mcxOpenModal('premium')">
+    <div class="mcx-card-hero">
+      <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/premium.png" alt="Premium">
+      <span class="mcx-card-badge">Empfehlung</span>
+    </div>
+    <div class="mcx-card-body">
+      <h3>Araç Kiralamada Premium Keyfi</h3>
+      <p>Premium Rahatlık ile Tatilde Tam Güvence ve Huzur — günlük sadece 5 € ile tüm riski sıfırlayın.</p>
+    </div>
+    <button class="mcx-card-cta">
+      Mehr erfahren
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <!-- Card 3: HGS -->
+  <div class="mcx-card" onclick="mcxOpenModal('hgs')">
+    <div class="mcx-card-hero">
+      <img src="https://atk.airtuerk.net/client/webs/undefined/images/news/hgs.png" alt="HGS">
+      <span class="mcx-card-badge">Service</span>
+    </div>
+    <div class="mcx-card-body">
+      <h3>HGS Konusunda İçim Rahat</h3>
+      <p>HGS Paketleri ile otoyol ve köprü geçiş ücretleri kiralama süresince önceden güvence altına alınır.</p>
+    </div>
+    <button class="mcx-card-cta">
+      Mehr erfahren
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <!-- Card 4: İptal Paketi -->
+  <div class="mcx-card" onclick="mcxOpenModal('iptal')">
+    <div class="mcx-card-hero no-image">
+      <span class="mcx-card-badge">Angebot</span>
+    </div>
+    <div class="mcx-card-body">
+      <h3>Araç Kiralama İptal Paketi</h3>
+      <p>Rezervasyon başına 15 € ile esnek iptal imkânı — misafirlerinize güvenli planlama sunun.</p>
+    </div>
+    <button class="mcx-card-cta">
+      Mehr erfahren
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- ── JAVASCRIPT ─────────────────────────────────────────── -->
+<script type="text/javascript" ref="home_002">
+(function () {
+
+  /* ── campaign data ─────────────────────────────────────── */
+  var MCX_CAMPAIGNS = {
+    flex14: {
+      title  : 'Flex14 ile Kesintisiz İptal Hakkı',
+      text   : 'Flex14 ile son 14 güne kadar ücretsiz iptal hakkını yolcularımıza sunmayı unutmayın.\n\nYolcularınız bilet tarihine kadar ücretsiz iptal edebilir — ek maliyet yok, esnek planlama var.',
+      date   : '17.03.2026',
+      // newsId used for the iframe src (original multicheck news-detail URL)
+      newsId : '9925591',
+      image  : 'https://atk.airtuerk.net/client/webs/undefined/images/news/flex14detail.png',
+      video  : null
+    },
+    premium: {
+      title  : 'Araç Kiralamada Premium Keyfi',
+      text   : 'Premium Rahatlık ile Tatilde Tam Güvence ve Huzur\n\nTatilinizde küçük bir kazanın size beklenmedik masraflar çıkarabileceğini biliyor muydunuz?\n\nPremium Paket olmadan:\nKaza raporunuz olsa bile yüksek muafiyet bedelleri cebinizden çıkar. Rapor yoksa araçtaki tüm hasar bedeli size fatura edilir.\n\nPremium Paket ile:\n✔ Polis raporunuz varsa ek hasar masrafı sıfır\n✔ Cam, far, lastik ve ayna güvence altında\n✔ "Acaba ne kadar ödeyeceğim?" endişesi yok\n✔ Tatilinize huzurla devam edersiniz\n\nGünlük sadece 5 € ile tüm bu riski sıfırlıyorsunuz.',
+      date   : '17.03.2026',
+      newsId : '9925593',
+      image  : 'https://atk.airtuerk.net/client/webs/undefined/images/news/premium.png',
+      video  : 'https://atk.airtuerk.net/client/webs/undefined/videos/RentalCar-Premium.mp4'
+    },
+    hgs: {
+      title  : 'HGS Konusunda İçim Rahat',
+      text   : 'Değerli Meslektaşlarımız,\n\nairtuerk olarak, acentelerimize kolaylık sağlamak ve rezervasyon sonrası HGS takibi ile fatura süreçlerini ortadan kaldırmak amacıyla Full Kredit rezervasyonlar için HGS Paketleri uygulamasını devreye aldık.\n\nBu paketler sayesinde Türkiye\'deki otoyol ve köprü geçiş ücretleri, kiralama süresi boyunca önceden güvence altına alınır.\n\nHGS Paketleri (Rezervasyon Başına)\n• HGS 1 Paket | 1–10 gün → 20 €\n• HGS 2 Paket | 11–20 gün → 30 €\n• HGS 3 Paket | 21–35 gün → 40 €\n• HGS 4 Paket | 35 gün ve üzeri → 50 €\n\nSaygılarımızla\nairtuerk Ekibi',
+      date   : '2025',
+      newsId : '9925594',
+      image  : 'https://atk.airtuerk.net/client/webs/undefined/images/news/hgs.png',
+      video  : null
+    },
+    iptal: {
+      title  : 'Araç Kiralama İptal Paketi',
+      text   : 'Değerli Meslektaşlarımız,\n\nairtuerk olarak araç kiralama rezervasyonlarında misafirlerimize daha esnek planlama imkânı sunmak amacıyla İptal Paketi uygulamasını devreye almış bulunuyoruz.\n\nİptal Paketi\nRezervasyon başına 15 € olarak sunulan İptal Paketi, misafirlerimizin rezervasyonlarını daha esnek planlamasına yardımcı olur.\n\nAvantajları\n• Misafirlerimiz için daha güvenli rezervasyon imkânı\n• Satış sürecinde ek güven ve kolaylık\n• Rezervasyon iptallerinde daha esnek çözüm\n\nSaygılarımızla\nairtuerk Ekibi',
+      date   : '2025',
+      newsId : '9925595',
+      image  : null,
+      video  : null
+    }
+  };
+
+  /* ── open modal ────────────────────────────────────────── */
+  window.mcxOpenModal = function (key) {
+    var c = MCX_CAMPAIGNS[key];
+    if (!c) return;
+
+    // populate text fields
+    document.getElementById('mcxModalTitle').textContent = c.title;
+    document.getElementById('mcxModalText').textContent  = c.text;
+    document.getElementById('mcxModalDate').textContent  = c.date || '';
+
+    // populate media slot
+    var media = document.getElementById('mcxModalMedia');
+    media.innerHTML = '';
+
+    if (c.video) {
+      var vid = document.createElement('video');
+      vid.controls = true;
+      vid.autoplay = true;
+      vid.muted    = true;
+      vid.setAttribute('playsinline', '');
+      vid.setAttribute('preload', 'metadata');
+      if (c.image) vid.poster = c.image;
+      var src = document.createElement('source');
+      src.src  = c.video;
+      src.type = 'video/mp4';
+      vid.appendChild(src);
+      media.appendChild(vid);
+    } else if (c.image) {
+      var img = document.createElement('img');
+      img.src = c.image;
+      img.alt = c.title;
+      img.style.objectFit = 'cover';
+      media.appendChild(img);
+    } else {
+      // no media: collapse header height a bit
+      media.style.aspectRatio = '21/4';
+      media.style.background  = 'linear-gradient(135deg,#1a1a2e,#0f3460)';
+    }
+
+    // show overlay
+    var overlay = document.getElementById('mcxOverlay');
+    overlay.classList.add('mcx-open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  /* ── close modal ───────────────────────────────────────── */
+  window.mcxCloseModal = function () {
+    var overlay = document.getElementById('mcxOverlay');
+    overlay.classList.remove('mcx-open');
+    document.body.style.overflow = '';
+
+    // stop any video
+    var vid = document.querySelector('#mcxModalMedia video');
+    if (vid) { vid.pause(); vid.src = ''; }
+  };
+
+  /* ── close on overlay click ────────────────────────────── */
+  window.mcxCloseOnOverlay = function (e) {
+    if (e.target === document.getElementById('mcxOverlay')) {
+      mcxCloseModal();
+    }
+  };
+
+  /* ── ESC key ────────────────────────────────────────────── */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') mcxCloseModal();
+  });
+
+  /* ── keep backward compat with old mcxShowNewsDetailPopup ─ */
+  var legacyMap = {
+    9925591: 'flex14',
+    9925593: 'premium',
+    9925594: 'hgs',
+    9925595: 'iptal'
+  };
+  window.mcxShowNewsDetailPopup = function (newsId) {
+    var key = legacyMap[newsId];
+    if (key) mcxOpenModal(key);
+  };
+
+}());
+</script>
